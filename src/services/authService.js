@@ -197,8 +197,21 @@ export const resetPassword = (email) =>
         });
       }
 
-      const html = `Mật khẩu mới của bạn ở đây ${newPassword} `;
-      await sendMail({ email, html });
+      const html = `<table style="width: 100%; border-collapse: collapse; border-radius: 5px; background-color: #ffffff;">
+      <tr>
+          <td style="padding: 10px 20px">
+              <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">Mật Khẩu Mới</h2>
+              <p style="font-size: 16px; line-height: 1.5;">Xin chào,</p>
+              <p style="font-size: 16px; line-height: 1.5;">Dưới đây là thông tin về mật khẩu mới của bạn:</p>
+              <p style="font-size: 16px; line-height: 1.5;">Mật khẩu mới: <strong style="font-weight: bold; font-size: 24px">${newPassword}</strong></p>
+              <p style="font-size: 16px; line-height: 1.5;">Vui lòng đảm bảo bạn lưu giữ mật khẩu này một cách an toàn.</p>
+              <p style="font-size: 16px; line-height: 1.5;">Trân trọng,</p>
+              <p style="font-size: 16px; line-height: 1.5;">Đội ngũ của chúng tôi</p>
+          </td>
+      </tr>
+  </table>`;
+      const content = `New password`;
+      await sendMail({ email, html, content });
     } catch (e) {
       reject(e);
     }

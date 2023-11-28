@@ -30,14 +30,3 @@ export const deleteComment = async (req, res) => {
     console.log(error);
   }
 };
-
-export const responseComment = async (req, res) => {
-  try {
-    const { id } = req.user;
-    const { commentId } = req.params;
-    const response = await services.responseComment(req.body, id, commentId);
-    return res.status(200).json(response);
-  } catch (error) {
-    console.log(error);
-  }
-};

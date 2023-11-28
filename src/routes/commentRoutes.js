@@ -10,10 +10,4 @@ router.post("/post-comment", controllers.postComment);
 router.put("/update-comment", controllers.updateComment);
 router.delete("/delete-comment", controllers.deleteComment);
 
-router.post(
-  "/response-comment/:commentId",
-  isCreator,
-  controllers.responseComment
-);
-
 module.exports = router;
