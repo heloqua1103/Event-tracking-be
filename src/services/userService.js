@@ -28,7 +28,16 @@ export const createUserByAdmin = ({ username, password }) =>
     }
   });
 
-export const getAllUsers = ({ page, limit, name, order, id, ...query }) => {
+export const getAllUsers = ({
+  page,
+  limit,
+  name,
+  order,
+  id,
+  roleId,
+  facultyCode,
+  ...query
+}) => {
   return new Promise(async (resolve, reject) => {
     try {
       const queries = { raw: true, nest: true };
@@ -38,6 +47,12 @@ export const getAllUsers = ({ page, limit, name, order, id, ...query }) => {
       queries.limit = fLimit;
       if (order) queries.order = [order];
       if (name) query.name = { [Op.substring]: name };
+      if (roleId) {
+        query.roleId = { [Op.in]: roleId.split(",") };
+      }
+      if (facultyCode) {
+        query.facultyCode = { [Op.in]: facultyCode.split(",") };
+      }
       const response = await db.User.findAndCountAll({
         where: query,
         ...queries,
@@ -238,15 +253,15 @@ export const changePassword = (body, userId) =>
         response && bcrypt.compareSync(body.password, response.password);
       const response1 = isChecked
         ? body.newPassword == body.password
-          ? "Must not match the old password"
+          ? "Mật khẩu không đúng"
           : await db.User.update(
               { password: hashPassword(body.newPassword) },
               { where: { id: userId } }
             )
-        : "Password is wrong";
+        : "Mật khẩu không đúng";
       resolve({
         success: response1[0] > 0 ? true : false,
-        mess: response1[0] > 0 ? "Changed password successfully" : response1,
+        mess: response1[0] > 0 ? "Đã cập nhật mật khẩu thành công" : response1,
       });
     } catch (e) {
       reject(e);

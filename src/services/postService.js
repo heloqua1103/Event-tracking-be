@@ -251,7 +251,7 @@ export const getAllEvent = ({
       if (title) query.title = { [Op.substring]: title };
       if (status) {
         let statusess = status.map((item) => Number(item));
-        query.status = { [Op.or]: statusess };
+        query.status = { [Op.in]: statusess };
       }
       if (hot) {
         const hotEvent = await db.ListPeopleJoin.findAll({
@@ -299,24 +299,6 @@ export const getAllEvent = ({
             as: "userJoined",
             attributes: ["id", "name", "email", "avatar"],
           },
-          // {
-          //   model: db.User,
-          //   as: "commentEvent",
-          //   attributes: ["id", "name", "email", "avatar"],
-          //   include: [
-          //     {
-          //       model: db.ResponseComment,
-          //       as: "responseData",
-          //       attributes: ["response", "commentId", "createdAt", "userId"],
-          //       include: [
-          //         {
-          //           model: db.User,
-          //           as: "userData",
-          //         },
-          //       ],
-          //     },
-          //   ],
-          // },
           {
             model: db.OfflineEvent,
             as: "offlineEvent",
@@ -345,24 +327,6 @@ export const getAllEvent = ({
           delete follower.dataValues.ListEventFollow;
         });
       });
-
-      // response.rows.forEach((event) => {
-      //   event.dataValues.commentEvent.forEach((comment) => {
-      //     const listComment = comment.dataValues.Comment;
-      //     const listResponse = comment.dataValues.responseData.userData;
-
-      //     comment.dataValues.comment = listComment.comment;
-      //     comment.dataValues.createdAt = listComment.createdAt;
-
-      //     comment.dataValues.responseData.dataValues.name = listResponse.name;
-      //     comment.dataValues.responseData.dataValues.avatar =
-      //       listResponse.avatar;
-      //     comment.dataValues.responseData.dataValues.email = listResponse.email;
-
-      //     delete comment.dataValues.Comment;
-      //     delete comment.dataValues.responseData.dataValues.userData;
-      //   });
-      // });
 
       response.rows.forEach((event) => {
         event.dataValues.userJoined.forEach((user) => {
