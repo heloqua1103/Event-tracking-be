@@ -24,6 +24,9 @@ module.exports = {
       timeRoom: {
         type: Sequelize.STRING,
       },
+      finishRoom: {
+        type: Sequelize.STRING,
+      },
       qrCode: {
         type: Sequelize.TEXT,
       },

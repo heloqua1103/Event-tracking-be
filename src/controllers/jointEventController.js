@@ -15,7 +15,7 @@ export const updateRoom = async (req, res) => {
   try {
     const { id } = req.user;
     const { eventId } = req.params;
-    const response = await services.updateRoom(id, eventId, req.body.roomId);
+    const response = await services.updateRoom(id, eventId, req.body);
     return res.status(200).json(response);
   } catch (error) {
     console.log(error);

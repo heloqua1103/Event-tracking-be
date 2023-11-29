@@ -97,6 +97,7 @@ const createRoom = async (eventId, rooms, typeEvent) => {
             topic: room.topic,
             numberRoom: room.numberRoom,
             timeRoom: room.timeRoom,
+            finishRoom: room.finishRoom,
           });
           qrCode.toDataURL(
             JSON.stringify({
@@ -149,6 +150,7 @@ const createRoom = async (eventId, rooms, typeEvent) => {
             topic: room.topic,
             linkRoomUrl: room.linkRoomUrl,
             timeRoom: room.timeRoom,
+            finishRoom: room.finishRoom,
           });
           qrCode.toDataURL(
             JSON.stringify({
