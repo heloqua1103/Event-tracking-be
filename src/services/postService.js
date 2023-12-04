@@ -45,8 +45,8 @@ export const createEvent = (body, id, fileData) => {
         );
         createRoom(
           response.dataValues.id,
-          JSON.parse(body.rooms),
-          // body.rooms,
+          // JSON.parse(body.rooms),
+          body.rooms,
           response.dataValues.typeEvent
         );
       }
@@ -280,7 +280,7 @@ export const getAllEvent = ({
             ids.push(event.dataValues.id);
           }
         });
-        query.id = { [Op.or]: ids };
+        query.id = { [Op.in]: ids };
       }
       const response = await db.Event.findAndCountAll({
         where: query,
@@ -483,18 +483,20 @@ export const getEvent = (eventId) => {
       response.dataValues.userJoined.forEach((user) => {
         const userJoined = user.dataValues.ListPeopleJoin;
         const student = user.dataValues.studentData;
-        const faculty = user.dataValues.facultyData;
+
+        if (user.dataValues.facultyData) {
+          const faculty = user.dataValues.facultyData;
+          user.dataValues.nameFaculty = faculty.nameFaculty;
+          delete user.dataValues.facultyData;
+        }
 
         user.dataValues.studentCode = student.studentCode;
         user.dataValues.classCode = student.classCode;
-
-        user.dataValues.nameFaculty = faculty.nameFaculty;
 
         user.dataValues.isJoined = userJoined.isJoined;
         user.dataValues.roomId = userJoined.roomId;
 
         delete user.dataValues.studentData;
-        delete user.dataValues.facultyData;
         delete user.dataValues.ListPeopleJoin;
       });
 
