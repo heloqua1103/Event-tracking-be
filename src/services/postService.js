@@ -322,15 +322,11 @@ export const getAllEvent = ({
         event.dataValues.offlineEvent.length === 0
           ? (event.dataValues.offlineEvent = null)
           : event.dataValues.offlineEvent;
-      });
 
-      response.rows.forEach((event) => {
         event.dataValues.followers.forEach((follower) => {
           delete follower.dataValues.ListEventFollow;
         });
-      });
 
-      response.rows.forEach((event) => {
         event.dataValues.userJoined.forEach((user) => {
           const userJoined = user.dataValues.ListPeopleJoin;
           user.dataValues.roomId = userJoined.roomId;
@@ -813,11 +809,32 @@ export const getAllEventOfAuthor = (
         event.dataValues.offlineEvent.length === 0
           ? (event.dataValues.offlineEvent = null)
           : event.dataValues.offlineEvent;
-      });
 
-      response.rows.forEach((event) => {
         event.dataValues.followers.forEach((follower) => {
           delete follower.dataValues.ListEventFollow;
+        });
+
+        event.dataValues.userJoined.forEach((user) => {
+          if (user.dataValues.ListPeopleJoin) {
+            const userJoined = user.dataValues.ListPeopleJoin;
+            user.dataValues.isJoined = userJoined.isJoined;
+            delete user.dataValues.ListPeopleJoin;
+          }
+
+          if (user.dataValues.studentData) {
+            const student = user.dataValues.studentData;
+
+            user.dataValues.studentCode = student.studentCode;
+            user.dataValues.classCode = student.classCode;
+
+            delete user.dataValues.studentData;
+          }
+
+          if (user.dataValues.facultyData) {
+            const faculty = user.dataValues.facultyData;
+            user.dataValues.nameFaculty = faculty.nameFaculty;
+            delete user.dataValues.facultyData;
+          }
         });
       });
 
@@ -829,23 +846,6 @@ export const getAllEventOfAuthor = (
       //     delete user.dataValues.ListPeopleJoin;
       //   });
       // });
-
-      response.rows.forEach((event) => {
-        event.dataValues.userJoined.forEach((user) => {
-          const userJoined = user.dataValues.ListPeopleJoin;
-          const student = user.dataValues.studentData;
-          const faculty = user.dataValues.facultyData;
-
-          user.dataValues.studentCode = student.studentCode;
-          user.dataValues.classCode = student.classCode;
-          user.dataValues.nameFaculty = faculty.nameFaculty;
-          user.dataValues.isJoined = userJoined.isJoined;
-
-          delete user.dataValues.studentData;
-          delete user.dataValues.facultyData;
-          delete user.dataValues.ListPeopleJoin;
-        });
-      });
       resolve({
         success: response ? true : false,
         mess: response ? "Get data success" : "Get data failure",
