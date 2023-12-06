@@ -242,3 +242,85 @@ export const totalRateOfAuthor = (authorId, { month, year, ...query }) => {
     }
   });
 };
+
+export const quantityByFaculty = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await db.User.findAll({
+        attributes: ["facultyCode"],
+      });
+      const dataUser = data.map((data) => {
+        return data.dataValues.facultyCode;
+      });
+      const faculty = await db.Faculty.findAll({
+        attributes: ["id"],
+      });
+      const idsFaculty = faculty.map((item) => {
+        return item.dataValues.id;
+      });
+      const response = [];
+      idsFaculty.forEach((id) => {
+        const totalFaculty = dataUser.reduce(
+          (count, i) => (i === id ? count + 1 : count),
+          0
+        );
+        response.push({ id, totalFaculty });
+      });
+
+      resolve({
+        success: response ? true : false,
+        mess: response ? "Get data successfull" : "Not",
+        response: response,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+export const byTypeEvent = ({ month, year, ...query }) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (month) {
+        const data = await db.Event.findAll();
+        const ids = [];
+        data.forEach((event) => {
+          if (
+            moment(event.dataValues.startDate).format("YYYY-MM-DD") <=
+              moment(date).format("YYYY-MM-DD") &&
+            moment(event.dataValues.finishDate).format("YYYY-MM-DD") >=
+              moment(date).format("YYYY-MM-DD")
+          ) {
+            ids.push(event.dataValues.id);
+          }
+        });
+        query.id = { [Op.in]: ids };
+      }
+      const data = await db.Event.findAll({
+        where: query,
+        attributes: ["typeEvent"],
+      });
+      const typeEvent = data.map((data) => {
+        return data.dataValues.typeEvent;
+      });
+      const response = [];
+      const countOnline = typeEvent.reduce(
+        (count, i) => (i === true ? count + 1 : count),
+        0
+      );
+      const countOffline = typeEvent.reduce(
+        (count, i) => (i === false ? count + 1 : count),
+        0
+      );
+      response.push({ typeEvent: "Online", countOnline });
+      response.push({ typeEvent: "Offline", countOffline });
+      resolve({
+        success: data ? true : false,
+        mess: data ? "Get data successfull" : "Đã có lỗi gì đó xảy ra",
+        response: response,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
