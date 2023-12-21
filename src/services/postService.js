@@ -45,8 +45,8 @@ export const createEvent = (body, id, fileData) => {
         );
         createRoom(
           response.dataValues.id,
-          // JSON.parse(body.rooms),
-          body.rooms,
+          JSON.parse(body.rooms),
+          // body.rooms,
           response.dataValues.typeEvent
         );
       }
@@ -334,11 +334,13 @@ export const getAllEvent = ({
           delete user.dataValues.ListPeopleJoin;
         });
       });
+      const count = await db.Event.findAndCountAll({ where: { status: 1 } });
       resolve({
         success: response ? true : false,
         mess: response ? "Get data success" : "Get data failure",
         response: response.rows,
         count: response.count,
+        wait: count.count,
       });
     } catch (error) {
       reject(error);

@@ -76,3 +76,31 @@ export const byTypeEvent = async (req, res) => {
     console.log(error);
   }
 };
+
+export const attendedEvent = async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    const response = await services.attendedEvent(eventId);
+    return res.status(200).json(response);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const incrementUser = async (req, res) => {
+  try {
+    const response = await services.incrementUser(req.query);
+    return res.status(200).json(response);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const incrementEvent = async (req, res) => {
+  try {
+    const response = await services.incrementEvent(req.query);
+    return res.status(200).json(response);
+  } catch (error) {
+    console.log(error);
+  }
+};

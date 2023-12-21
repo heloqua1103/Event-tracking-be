@@ -1,5 +1,5 @@
 import db, { sequelize } from "../models";
-import { Op } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 import moment from "moment";
 
 export const eventByMonth = ({ year, ...query }) => {
@@ -286,10 +286,25 @@ export const byTypeEvent = ({ month, year, ...query }) => {
         const ids = [];
         data.forEach((event) => {
           if (
-            moment(event.dataValues.startDate).format("YYYY-MM-DD") <=
-              moment(date).format("YYYY-MM-DD") &&
-            moment(event.dataValues.finishDate).format("YYYY-MM-DD") >=
-              moment(date).format("YYYY-MM-DD")
+            moment(event.dataValues.startDate).format("YYYY-MM") <=
+              moment(month).format("YYYY-MM") &&
+            moment(event.dataValues.finishDate).format("YYYY-MM") >=
+              moment(month).format("YYYY-MM")
+          ) {
+            ids.push(event.dataValues.id);
+          }
+        });
+        query.id = { [Op.in]: ids };
+      }
+      if (year) {
+        const data = await db.Event.findAll();
+        const ids = [];
+        data.forEach((event) => {
+          if (
+            moment(event.dataValues.startDate).format("YYYY") <=
+              moment(year).format("YYYY") &&
+            moment(event.dataValues.finishDate).format("YYYY") >=
+              moment(year).format("YYYY")
           ) {
             ids.push(event.dataValues.id);
           }
@@ -319,6 +334,136 @@ export const byTypeEvent = ({ month, year, ...query }) => {
         mess: data ? "Get data successfull" : "Đã có lỗi gì đó xảy ra",
         response: response,
       });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+export const attendedEvent = (eventId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await db.ListPeopleJoin.findAll({
+        where: { eventId: eventId },
+        attributes: ["isJoined"],
+      });
+      const data1 = await db.ListEventFollow.findAndCountAll({
+        where: { eventId: eventId },
+      });
+      const response = [];
+      const countJoined = data.reduce(
+        (count, i) => (i.dataValues.isJoined === true ? count + 1 : count),
+        0
+      );
+      const countNotJoined = data.reduce(
+        (count, i) => (i.dataValues.isJoined === false ? count + 1 : count),
+        0
+      );
+      response.push({ typeAttended: "Joined", count: countJoined });
+      response.push({ typeAttended: "Not Join", count: countNotJoined });
+      response.push({ typeAttended: "Followed", count: data1.count });
+
+      resolve({
+        success: response ? true : false,
+        mess: response ? "Get data successfull" : "Not",
+        response: response,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+export const incrementUser = ({ month, year, ...query }) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (month) {
+        const response = await db.User.findAll({
+          attributes: [
+            [Sequelize.fn("MONTH", Sequelize.col("createdAt")), "month"],
+            [Sequelize.fn("COUNT", Sequelize.col("*")), "userCount"],
+          ],
+          where: {
+            createdAt: {
+              [Op.gte]: Sequelize.literal("CURDATE() - INTERVAL 1 YEAR"), // Lấy dữ liệu trong vòng 1 năm gần đây
+            },
+          },
+          group: ["month"],
+          raw: true,
+        });
+        resolve({
+          success: response ? true : false,
+          mess: response ? "Get data successfull" : "Not",
+          response: response,
+        });
+      } else if (year) {
+        const response = await db.User.findAll({
+          attributes: [
+            [Sequelize.fn("YEAR", Sequelize.col("createdAt")), "year"],
+            [Sequelize.fn("COUNT", Sequelize.col("*")), "userCount"],
+          ],
+          where: {
+            createdAt: {
+              [Op.gte]: Sequelize.literal("CURDATE() - INTERVAL 1 YEAR"),
+            },
+          },
+          group: ["year"],
+          raw: true,
+        });
+        resolve({
+          success: response ? true : false,
+          mess: response ? "Get data successfull" : "Not",
+          response: response,
+        });
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+export const incrementEvent = ({ month, year, ...query }) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (month) {
+        const response = await db.Event.findAll({
+          attributes: [
+            [Sequelize.fn("MONTH", Sequelize.col("createdAt")), "month"],
+            [Sequelize.fn("COUNT", Sequelize.col("*")), "eventCount"],
+          ],
+          where: {
+            createdAt: {
+              [Op.gte]: Sequelize.literal("CURDATE() - INTERVAL 1 YEAR"), // Lấy dữ liệu trong vòng 1 năm gần đây
+            },
+          },
+          group: ["month"],
+          raw: true,
+        });
+        resolve({
+          success: response ? true : false,
+          mess: response ? "Get data successfull" : "Not",
+          response: response,
+        });
+      } else if (year) {
+        const response = await db.Event.findAll({
+          attributes: [
+            [Sequelize.fn("YEAR", Sequelize.col("createdAt")), "year"],
+            [Sequelize.fn("COUNT", Sequelize.col("*")), "eventCount"],
+          ],
+          where: {
+            createdAt: {
+              [Op.gte]: Sequelize.literal("CURDATE() - INTERVAL 1 YEAR"),
+            },
+          },
+          group: ["year"],
+          raw: true,
+        });
+        resolve({
+          success: response ? true : false,
+          mess: response ? "Get data successfull" : "Not",
+          response: response,
+        });
+      }
     } catch (error) {
       reject(error);
     }
