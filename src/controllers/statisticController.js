@@ -67,6 +67,15 @@ export const totalRateOfAuthor = async (req, res) => {
   }
 };
 
+export const totalRateOfSystem = async (req, res) => {
+  try {
+    const response = await services.totalRateOfSystem(req.query);
+    return res.status(200).json(response);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const quantityByFaculty = async (req, res) => {
   try {
     const response = await services.quantityByFaculty();

@@ -13,6 +13,7 @@ router.get("/increment-user", isAdmin, controllers.incrementUser);
 router.get("/increment-event", isAdmin, controllers.incrementEvent);
 router.get("/by-faculty/:eventId", isAdmin, controllers.byFaculty);
 router.get("/5-people-hot-system", isAdmin, controllers.fivePeopleHotSystem);
+router.get("/total-rate-system", isAdmin, controllers.totalRateOfSystem);
 router.get("/by-gender/:eventId", isCreator, controllers.byGenderOfEvent);
 router.get("/by-attended/:eventId", isCreator, controllers.attendedEvent);
 router.get("/by-age/:eventId", isCreator, controllers.byAgeOfEvent);

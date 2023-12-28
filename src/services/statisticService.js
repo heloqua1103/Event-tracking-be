@@ -293,6 +293,44 @@ export const totalRateOfAuthor = (authorId, { month, year, ...query }) => {
   });
 };
 
+export const totalRateOfSystem = ({ month, year, ...query }) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (year) {
+        query.startDate = {
+          [Op.between]: [moment(year), moment(year).endOf("year")],
+        };
+      }
+      if (month) {
+        query.startDate = {
+          [Op.between]: [moment(month), moment(month).endOf("month")],
+        };
+      }
+      const data = await db.Event.findAll({
+        where: { ...query },
+      });
+      const rates = data.map((item) => {
+        return item.dataValues.totalRate;
+      });
+      const response = [];
+      for (let rate = 1; rate <= 5; rate++) {
+        const totalRate = rates.reduce(
+          (count, i) => (Math.round(i) === rate ? count + 1 : count),
+          0
+        );
+        response.push({ rate, totalRate });
+      }
+      resolve({
+        success: response ? true : false,
+        mess: response ? "Get data successfull" : "Not",
+        response: response,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 export const quantityByFaculty = () => {
   return new Promise(async (resolve, reject) => {
     try {
