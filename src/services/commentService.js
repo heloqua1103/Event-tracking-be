@@ -4,12 +4,25 @@ import db from "../models";
 export const postComment = (body, id) =>
   new Promise(async (resolve, reject) => {
     try {
+      const event = await db.Event.findOne({
+        where: { id: body.eventId },
+      });
       if (body.responseId) {
+        const data = await db.Comment.findOne({
+          where: { id: body.responseId },
+        });
         const response = await db.ResponseComment.create({
           userId: id,
           response: body.comment,
           commentId: body.responseId,
         });
+        if (response) {
+          await db.Notification.create({
+            userId: data.dataValues.userId,
+            eventId: body.eventId,
+            notification_code: 6,
+          });
+        }
         resolve({
           success: response ? true : false,
           mess: response
@@ -22,6 +35,13 @@ export const postComment = (body, id) =>
           eventId: body.eventId,
           comment: body.comment,
         });
+        if (response) {
+          await db.Notification.create({
+            userId: event.dataValues.authorId,
+            eventId: body.eventId,
+            notification_code: 6,
+          });
+        }
         resolve({
           success: response ? true : false,
           mess: response

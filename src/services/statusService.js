@@ -14,6 +14,26 @@ export const updateStatusEvent = (eventId, body) => {
         );
         const date = await db.Event.findOne({ where: { id: eventId } });
         if (Number(body.status) === 2) {
+          await db.Notification.create({
+            userId: data.dataValues.authorId,
+            eventId: data.dataValues.id,
+            notification_code: 7,
+          });
+          const beforeDate = new Date(date.dataValues.startDate);
+          beforeDate.setDate(beforeDate.getDate() - 1);
+          const yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          if (beforeDate < yesterday) {
+            const notification = new CronJob(
+              beforeDate,
+              function () {
+                notificationBeforeStart(eventId);
+              },
+              null,
+              true,
+              "Asia/Ho_Chi_Minh"
+            );
+          }
           const start = new CronJob(
             date.dataValues.startDate,
             function () {
@@ -63,6 +83,33 @@ const updateStartEvent = async (eventId) => {
   }
 };
 
+const notificationBeforeStart = async (eventId) => {
+  try {
+    const people = await db.ListPeopleJoin.findAll({
+      where: { EventId: eventId },
+    });
+    const follows = await db.ListEventFollow.findAll({
+      where: { EventId: eventId },
+    });
+    follows.forEach(async (item) => {
+      await db.Notification.create({
+        userId: item.dataValues.userId,
+        eventId: item.dataValues.eventId,
+        notification_code: 2,
+      });
+    });
+    people.forEach(async (item) => {
+      await db.Notification.create({
+        userId: item.dataValues.userId,
+        eventId: item.dataValues.eventId,
+        notification_code: 2,
+      });
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const notificationStart = async (eventId) => {
   try {
     const people = await db.ListPeopleJoin.findAll({
@@ -72,7 +119,7 @@ const notificationStart = async (eventId) => {
       await db.Notification.create({
         userId: item.dataValues.userId,
         eventId: item.dataValues.eventId,
-        notification_code: 4,
+        notification_code: 3,
       });
     });
   } catch (error) {
@@ -97,7 +144,7 @@ const notificationFinish = async (eventId) => {
       await db.Notification.create({
         userId: item.dataValues.userId,
         eventId: item.dataValues.eventId,
-        notification_code: 5,
+        notification_code: 4,
       });
     });
   } catch (error) {

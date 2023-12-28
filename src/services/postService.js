@@ -30,7 +30,7 @@ export const createEvent = (body, id, fileData) => {
           await db.Notification.create({
             userId: user.dataValues.id,
             eventId: response.dataValues.id,
-            notification_code: 6, //Need define
+            notification_code: 5,
           });
         });
 
@@ -536,6 +536,11 @@ export const cancelEvent = (authorId, eventId) => {
               attributes: ["userId"],
             },
           ],
+        });
+        await db.Notification.create({
+          userId: authorId,
+          eventId: eventId,
+          notification_code: 1,
         });
         people[0].dataValues.followerData.forEach(async (follower) => {
           await db.ListEventFollow.destroy({
