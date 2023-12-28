@@ -25,7 +25,6 @@ export const eventByMonth = ({ year, ...query }) => {
         );
         response.push({ month, totalEvent });
       }
-
       resolve({
         success: response ? true : false,
         mess: response ? "Get data successfull" : "Đã có lỗi gì đó xảy ra",
@@ -169,6 +168,57 @@ export const fivePeopleHot = (authorId, { ...query }) => {
           },
           isJoined: true,
         },
+        limit: 5,
+        group: ["userId"],
+        include: [
+          {
+            model: db.User,
+            as: "userData",
+            attributes: {
+              exclude: [
+                "password",
+                "username",
+                "roleId",
+                "refresh_token",
+                "fileName",
+                "createdAt",
+                "updatedAt",
+              ],
+            },
+            include: [
+              {
+                model: db.Student,
+                as: "studentData",
+                attributes: ["point"],
+              },
+            ],
+          },
+        ],
+      });
+
+      resolve({
+        success: response ? true : false,
+        mess: response ? "Get data successfull" : "Đã có lỗi gì đó xảy ra",
+        response: response,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+export const fivePeopleHotSystem = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const response = await db.ListPeopleJoin.findAll({
+        attributes: [
+          "userId",
+          [sequelize.fn("COUNT", sequelize.col("eventId")), "eventCount"],
+        ],
+        where: {
+          isJoined: true,
+        },
+        order: [[sequelize.col("eventCount"), "DESC"]],
         limit: 5,
         group: ["userId"],
         include: [
